@@ -428,7 +428,7 @@ async function loadData(uid){
   await setDoc(doc(db,'users',uid), def);
   return def;
 }
-async function saveData(){ await setDoc(doc(db,'users',me.uid), data, {merge:true}); }
+async function saveData(){ await setDoc(doc(db,'users',me.uid), data); }
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user=>{
@@ -724,17 +724,18 @@ document.getElementById('e-save').addEventListener('click', async()=>{
   const btn=document.getElementById('e-save');
   btn.textContent='Guardando...'; btn.disabled=true;
   try{
+    const currentType = entryType || 'ingreso';
     const entry={
       id: editingId || Date.now().toString(),
-      type: entryType,
+      type: currentType,
       amount,
       date: document.getElementById('e-date').value || today(),
       category: document.getElementById('e-cat').value,
       note: document.getElementById('e-note').value.trim(),
-      level: entryType==='pipeline'?pipeLevel:undefined,
+      level: currentType==='pipeline'?pipeLevel:undefined,
       createdAt: new Date().toISOString(),
     };
-    if(entryType==='pipeline'){
+    if(currentType==='pipeline'){
       if(editingId) data.pipeline=data.pipeline.map(p=>p.id===editingId?entry:p);
       else data.pipeline=[...data.pipeline, entry];
     } else {
@@ -742,13 +743,13 @@ document.getElementById('e-save').addEventListener('click', async()=>{
       else data.entries=[...data.entries, entry];
     }
     await saveData();
-    closeM('m-entry'); renderAll();
-    toast(editingId?'✏️ Actualizado':(entryType==='ingreso'?'💰 Ingreso registrado':'💸 Gasto registrado'));
-  }catch(e){ toast('Error al guardar'); console.error(e); }
-  btn.textContent='Guardar'; btn.disabled=false;
-  if(editingId){
-    // show delete option
-    openDelFromEdit(editingId, entryType);
+    closeM('m-entry');
+    renderAll();
+    toast(editingId?'✏️ Actualizado':(currentType==='ingreso'?'💰 Ingreso registrado':'💸 Gasto registrado'));
+  } catch(err){
+    toast('Error al guardar'); console.error(err);
+  } finally {
+    btn.textContent='Guardar'; btn.disabled=false;
   }
 });
 
