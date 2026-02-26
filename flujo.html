@@ -428,7 +428,7 @@ async function loadData(uid){
   await setDoc(doc(db,'users',uid), def);
   return def;
 }
-async function saveData(){ await setDoc(doc(db,'users',me.uid), data); }
+async function saveData(){ const clean=JSON.parse(JSON.stringify(data)); await setDoc(doc(db,'users',me.uid), clean); }
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user=>{
