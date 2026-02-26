@@ -732,9 +732,9 @@ document.getElementById('e-save').addEventListener('click', async()=>{
       date: document.getElementById('e-date').value || today(),
       category: document.getElementById('e-cat').value,
       note: document.getElementById('e-note').value.trim(),
-      level: currentType==='pipeline'?pipeLevel:undefined,
       createdAt: new Date().toISOString(),
     };
+    if(currentType==='pipeline') entry.level = pipeLevel || 'seguro';
     if(currentType==='pipeline'){
       if(editingId) data.pipeline=data.pipeline.map(p=>p.id===editingId?entry:p);
       else data.pipeline=[...data.pipeline, entry];
